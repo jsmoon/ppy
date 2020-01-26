@@ -1,0 +1,53 @@
+#!/bin/bash
+
+SCRIPT_NAME=$(basename $0)
+SCRIPT_PATH=$(dirname $(readlink -f $0))
+
+function do_exit() {
+    code=${1:?exit code is missing} && shift
+    echo "$@"
+    exit $code
+}
+
+function do_zen_of_python() {
+    python3 -m this
+}
+
+function do_pytube() {
+    python3 src/ppytube.py "$@"
+}
+
+function do_update() {
+    # update pytest
+    [ $# -lt 1 ] && { pip3 install -U pytest && pytest --version || do_exit 2 "pytest update failed."; }
+    # update specified module
+    module=${1:?module name should be specified.}
+    pip3 install -U $module || do_exit 2 "$module update failed."
+}
+
+function do_pytest() {
+    pytest "$@"
+}
+
+
+USAGE="$SCRIPT_NAME -- Practical PYthon examples
+
+$SCRIPT_NAME <cmd> [<cmd_options...>]
+
+$(grep '^##:' $0 | sed 's/^##://')
+"
+[ $# -lt 1 ] && do_exit 0 "$USAGE"
+cmd=$1 && shift
+
+cd $SCRIPT_PATH
+case "$cmd" in
+##:zen      display zen of python
+zen|this) do_zen_of_python "$@" ;;
+##:pytube   download a video from youtube url using by pytube.
+pytube) do_pytube "$@" ;;
+##:update   update python required modules.
+update) do_update "$@" ;;
+##:test     perform pytest under the tests/ directory.
+test) do_pytest "$@" ;;
+*) do_exit 1 "Unknown command: $cmd." ;;
+esac
