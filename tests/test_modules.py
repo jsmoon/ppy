@@ -1,4 +1,5 @@
 import pytest
 
 def test_module_pytube():
-    from pytube import YouTube
+    import pytube
+    assert pytube.__title__ == 'pytube3'
