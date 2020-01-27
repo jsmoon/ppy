@@ -43,6 +43,8 @@ def ppytube_download(url):
     print('Download Completed!')
 
 
+SHORTDESC="""download a video from youtube url using by pytube."""
+
 if __name__ == "__main__":
     if len(sys.argv) <= 1:
         sys.argv[1] = input("Please input YouTube URL: ")

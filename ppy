@@ -5,16 +5,8 @@ SCRIPT_PATH=$(dirname $(readlink -f $0))
 
 function do_exit() {
     code=${1:?exit code is missing} && shift
-    echo "$@"
+    [ $# -gt 0 ] && echo "$@"
     exit $code
-}
-
-function do_zen_of_python() {
-    python3 -m this
-}
-
-function do_pytube() {
-    python3 src/ppytube.py "$@"
 }
 
 function do_update() {
@@ -29,12 +21,27 @@ function do_pytest() {
     pytest "$@"
 }
 
+function do_zen_of_python() {
+    python3 -m this
+}
+
+function do_list_commands() {
+    # each python script for command starts with 'p'.
+    for scr in $(ls p*.py 2>/dev/null); do
+        mod=${scr%.py}
+        cmd=${mod#p}
+        desc=$(python3 -c "import $mod; print($mod.SHORTDESC)" 2>/dev/null)
+        [ -n "$desc" ] && printf "%s -- %s\n" "$cmd" "$desc"
+    done
+}
+
 
 USAGE="$SCRIPT_NAME -- Practical PYthon examples
 
 $SCRIPT_NAME <cmd> [<cmd_options...>]
 
 $(grep '^##:' $0 | sed 's/^##://')
+$(cd $SCRIPT_PATH/src && do_list_commands)
 "
 [ $# -lt 1 ] && do_exit 0 "$USAGE"
 cmd=$1 && shift
@@ -43,11 +50,13 @@ cd $SCRIPT_PATH
 case "$cmd" in
 ##:zen      display zen of python
 zen|this) do_zen_of_python "$@" ;;
-##:pytube   download a video from youtube url using by pytube.
-pytube) do_pytube "$@" ;;
-##:update   update python required modules.
+##:update   update python required modules. (default:pytest)
 update) do_update "$@" ;;
-##:test     perform pytest under the tests/ directory.
-test) do_pytest "$@" ;;
-*) do_exit 1 "Unknown command: $cmd." ;;
+##:pytest   perform pytest under the tests/ directory.
+pytest) do_pytest "$@" ;;
+##:
+##:Commands by python script:
+*) script="src/p${cmd}.py" && [ -f $script ] &&
+    { python3 $script "$@" || do_exit $?; } ||
+    { do_exit 2 "Unknown command -- ${cmd}"; } ;;
 esac
