@@ -27,7 +27,7 @@ def ppytube_download(url):
         yt.prefetch()
         yt.descramble()
     except Exception as e:
-        sys.exit("Connection Error -- {}\n{}".format(url, e))
+        sys.exit("YouTube Init Error -- {}\n{}".format(url, e))
 
     if len(yt.streams.all()) == 0:
         sys.exit("No streams")
@@ -35,8 +35,18 @@ def ppytube_download(url):
     try:
         print('{}'.format(yt.title))
         stream = yt.streams.first()
+        if yt.streams.count() > 1:
+            from pprint import pprint
+            pprint(yt.streams.all())
+            itag = input("Select itag (default:{}): ".format(stream.itag))
+            if itag:
+                stream = [st for st in yt.streams.all() if st.itag is int(itag)][0]
+    except Exception as e:
+        sys.exit("No stream specified\n{}".format(e))
+
+    try:
         print('From {}'.format(stream.url))
-        yt.streams.first().download()
+        stream.download()
     except Exception as e:
         sys.exit("Download Failed! -- {}\n{}".format(url, e))
 
@@ -46,8 +56,9 @@ def ppytube_download(url):
 SHORTDESC="""download a video from youtube url using by pytube."""
 
 if __name__ == "__main__":
+    logger.debug(sys.argv)
     if len(sys.argv) <= 1:
-        sys.argv[1] = input("Please input YouTube URL: ")
+        sys.argv.append(input("Please input YouTube URL: "))
 
     for url in sys.argv[1:]:
         print("URL: {}".format(url))
