@@ -36,7 +36,7 @@ function do_list_commands() {
 }
 
 
-USAGE="$SCRIPT_NAME -- Practical PYthon examples
+USAGE="$SCRIPT_NAME -- Practical PYthon Examples
 
 $SCRIPT_NAME <cmd> [<cmd_options...>]
 
