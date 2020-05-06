@@ -22,7 +22,7 @@ function do_pytest() {
 }
 
 function do_zen_of_python() {
-    python3 -m this
+    python3 -m this | while read line; do echo $line; sleep ${1:-1}; done
 }
 
 function do_list_commands() {

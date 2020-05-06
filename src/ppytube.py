@@ -53,7 +53,7 @@ def ppytube_download(url):
     print('Download Completed!')
 
 
-SHORTDESC="""download a video from youtube url using by pytube."""
+SHORTDESC="""download a video from youtube url using by pytube3."""
 
 if __name__ == "__main__":
     logger.debug(sys.argv)
